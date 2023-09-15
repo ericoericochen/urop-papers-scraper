@@ -1,5 +1,6 @@
 import aiohttp
 from bs4 import BeautifulSoup
+from user_agent import get_headers
 
 
 class Lab:
@@ -74,7 +75,7 @@ class Lab:
     @staticmethod
     async def afrom_url(url: str):
         async with aiohttp.ClientSession() as session:
-            async with session.get(url) as res:
+            async with session.get(url, headers=get_headers()) as res:
                 html = await res.text()
 
                 return Lab(html)
