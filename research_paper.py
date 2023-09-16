@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from user_agent import get_headers
 
 
-class Lab:
+class ResearchPaper:
     def __init__(self, html: str):
         soup = BeautifulSoup(html, "html.parser")
 
@@ -78,4 +78,4 @@ class Lab:
             async with session.get(url, headers=get_headers()) as res:
                 html = await res.text()
 
-                return Lab(html)
+                return ResearchPaper(html)

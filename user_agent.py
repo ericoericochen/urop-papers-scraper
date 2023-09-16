@@ -21,10 +21,27 @@ user_agents = [
     "Mozilla/5.0 (iPad; CPU OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
 ]
 
+ip_addresses = [
+    "110.186.26.46",
+    "117.49.55.62",
+    "76.70.94.225",
+    "224.117.140.121",
+    "178.231.215.62",
+    "44.141.199.166",
+    "94.75.67.15",
+    "111.176.150.188",
+    "209.219.104.126",
+    "58.189.191.220",
+]
+
 
 def get_user_agent():
     return random.choice(user_agents)
 
 
+def get_ip_address():
+    return random.choice(ip_addresses)
+
+
 def get_headers():
-    return {"User-Agent": get_user_agent()}
+    return {"User-Agent": get_user_agent(), "Forwarded": get_ip_address()}
