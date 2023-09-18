@@ -62,6 +62,14 @@ class LabsSheet:
         worksheet_id = self.worksheets[lab_name]
         worksheet = self.sheet.get_worksheet_by_id(worksheet_id)
 
+        def encode_files(data: list[str]):
+            files_str = stringify_list(data)
+
+            if len(files_str) <= 50000:
+                return files_str
+            else:
+                return files_str[:50000]
+
         values = [
             [
                 paper.title,
@@ -72,7 +80,7 @@ class LabsSheet:
                 paper.url,
                 stringify_list(paper.keywords),
                 paper.date_issued,
-                stringify_list(paper.files),
+                encode_files(paper.files),
             ]
             for paper in research_papers
         ]

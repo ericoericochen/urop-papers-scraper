@@ -65,11 +65,11 @@ def get_num_lab_pages(url: str):
         raise RuntimeError
 
 
-def get_lab_pages(url: str, pages: int):
-    for i in range(0, pages, 3):
-        offset = i
-        link = url + f"?offset={offset}"
-        response = requests.get(link)
+@retry(wait_exponential_multiplier=60 * 1000, wait_exponential_max=WAIT)
+def get_paper_links(link: str):
+    response = requests.get(link)
+
+    if response.status_code == 200:
         html = response.text
         soup = BeautifulSoup(html, "html.parser")
         papers_links = soup.select(".artifact-title a")
@@ -78,5 +78,32 @@ def get_lab_pages(url: str, pages: int):
             add_query_param("https://dspace.mit.edu" + a["href"], "show", "full")
             for a in papers_links
         ]
+
+        return links
+    else:
+        print(response.status_code)
+        print(f"UNABLE TO GET {link}")
+        print(response.headers)
+        print("RETRYING in the next 3 minutes")
+        raise RuntimeError
+
+
+def get_lab_pages(url: str, pages: int):
+    for i in range(0, pages, 3):
+        offset = i
+        link = url + f"?offset={offset}"
+
+        # # add throttling to this
+        # response = requests.get(link)
+        # html = response.text
+        # soup = BeautifulSoup(html, "html.parser")
+        # papers_links = soup.select(".artifact-title a")
+
+        # links: list[str] = [
+        #     add_query_param("https://dspace.mit.edu" + a["href"], "show", "full")
+        #     for a in papers_links
+        # ]
+
+        links = get_paper_links(link)
 
         yield links

@@ -111,10 +111,12 @@ class ResearchPaper:
                             print(res.status)
                             print(f"UNABLE TO GET {url}")
                             print(res.headers)
-                            print("RETRYING in the next 3 minutes")
+                            print(
+                                f"RETRYING in the next {(attempts + 1) * 5 * 60} seconds"
+                            )
                             raise RuntimeError
             except:
-                time.sleep((attempts + 1) * 60)
+                time.sleep((attempts + 1) * 5 * 60)
 
         print(f"Failed to get {url}")
 

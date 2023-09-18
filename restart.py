@@ -37,7 +37,7 @@ async def sync_scrape_labs(sheet_id: str, start: str):
         ):
             papers = await apapers_from_urls(batch)
             labs_sheet.insert_research_papers(lab, papers)
-            time.sleep(1)
+            time.sleep(3)
 
         # throttle
         time.sleep(30)
@@ -48,7 +48,7 @@ async def sync_scrape_labs(sheet_id: str, start: str):
 if __name__ == "__main__":
     test_sheet_id = "1lcGJT0_swNAX9XzWQtK_BExrRjK_kuBnn2kuWALSgvY"
     sheet_id = "1_KX1U1ksj1Bzraf-oWbZh8nDHxQxYzZC1lSSuzgt1OA"
-    start = "Center for Global Change Science"
+    start = "Computer Science and Artificial Intelligence Lab (CSAIL)"
 
     _id = test_sheet_id
     asyncio.run(sync_scrape_labs(_id, start))
