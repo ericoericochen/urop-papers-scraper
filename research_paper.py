@@ -1,5 +1,7 @@
 import aiohttp
+import requests
 from bs4 import BeautifulSoup
+
 from user_agent import get_headers
 
 
@@ -71,6 +73,12 @@ class ResearchPaper:
             rows.append({"name": name, "value": value})
 
         return rows
+
+    @staticmethod
+    def from_url(url: str):
+        html = requests.get(url).text
+
+        return ResearchPaper(html)
 
     @staticmethod
     async def afrom_url(url: str):
