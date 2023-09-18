@@ -23,7 +23,7 @@ class LabsSheet:
         }
 
     def create_lab_worksheet(self, lab_name: str, papers: int):
-        self.sheet.add_worksheet(title=lab_name, rows=papers, cols=self.COLS)
+        self.sheet.add_worksheet(title=lab_name, rows=papers + 1, cols=self.COLS)
 
     def set_headers(self):
         headers = [
@@ -38,7 +38,23 @@ class LabsSheet:
 
         for worksheet in tqdm(self.sheet.worksheets()):
             worksheet.update("A1:G1", [headers])
-            time.sleep(0.5)
+            time.sleep(1)
+
+    def clear_sheets(self):
+        headers = [
+            "Name",
+            "Authors",
+            "Abstract",
+            "Url",
+            "Keywords",
+            "Date Issued",
+            "Files",
+        ]
+
+        for worksheet in tqdm(self.sheet.worksheets()):
+            worksheet.clear()
+            worksheet.update("A1:G1", [headers])
+            time.sleep(2)
 
     def insert_research_papers(
         self, lab_name: str, research_papers: list[ResearchPaper]

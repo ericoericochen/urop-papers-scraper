@@ -1,6 +1,45 @@
 import requests
 from bs4 import BeautifulSoup
 from user_agent import get_headers
+import urllib.parse
+
+
+def add_query_param(url, param_name, param_value):
+    """
+    Add a query parameter to a URL.
+
+    Args:
+        url (str): The original URL.
+        param_name (str): The name of the query parameter to add.
+        param_value (str): The value of the query parameter.
+
+    Returns:
+        str: The URL with the added query parameter.
+    """
+    # Parse the original URL
+    parsed_url = urllib.parse.urlparse(url)
+
+    # Get the existing query parameters as a dictionary
+    query_params = urllib.parse.parse_qs(parsed_url.query)
+
+    # Add the new query parameter
+    query_params[param_name] = [param_value]
+
+    # Reconstruct the URL with the added query parameter
+    new_url = urllib.parse.urlunparse(
+        (
+            parsed_url.scheme,
+            parsed_url.netloc,
+            parsed_url.path,
+            parsed_url.params,
+            urllib.parse.urlencode(
+                query_params, doseq=True
+            ),  # Use doseq=True to handle multiple values for the same parameter
+            parsed_url.fragment,
+        )
+    )
+
+    return new_url
 
 
 def get_num_lab_pages(url: str):
@@ -28,5 +67,9 @@ def get_lab_pages(url: str, pages: int):
         soup = BeautifulSoup(html, "html.parser")
         papers_links = soup.select(".artifact-title a")
 
-        links: list[str] = ["https://dspace.mit.edu" + a["href"] for a in papers_links]
+        links: list[str] = [
+            add_query_param("https://dspace.mit.edu" + a["href"], "show", "full")
+            for a in papers_links
+        ]
+
         yield links

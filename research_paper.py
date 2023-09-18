@@ -13,7 +13,12 @@ class ResearchPaper:
         rows = self.get_rows(soup)
 
         # get title
-        title = soup.select(".page-header.first-page-header")[0].text
+        title = self.extract_properties(rows, "dc.title")
+
+        if len(title) > 0:
+            self.title = title[0]
+        else:
+            self.title = ""
 
         # get authors
         authors = self.extract_properties(rows, "dc.contributor.author")
@@ -36,7 +41,12 @@ class ResearchPaper:
                 keywords.append(keyword.strip())
 
         # get url
-        url = self.extract_properties(rows, "dc.identifier.uri")[0]
+        url = self.extract_properties(rows, "dc.identifier.uri")
+
+        if len(url) > 0:
+            self.url = url[0]
+        else:
+            self.url = ""
 
         # get files
         files_rows = soup.select(".file-list .file-wrapper.row")
@@ -61,22 +71,26 @@ class ResearchPaper:
         return properties
 
     def get_rows(self, soup: BeautifulSoup):
-        metadata = soup.find("table")
-        table_rows = metadata.select(".ds-table-row")
+        try:
+            metadata = soup.find("table")
+            table_rows = metadata.select(".ds-table-row")
 
-        rows = []
+            rows = []
 
-        for table_row in table_rows:
-            name = table_row.find("td", attrs={"class": "label-cell"}).text
-            value = table_row.find("td", attrs={"class": "word-break"}).text
+            for table_row in table_rows:
+                name = table_row.find("td", attrs={"class": "label-cell"}).text
+                value = table_row.find("td", attrs={"class": "word-break"}).text
 
-            rows.append({"name": name, "value": value})
+                rows.append({"name": name, "value": value})
 
-        return rows
+            return rows
+        except:
+            print(soup.prettify())
 
     @staticmethod
     def from_url(url: str):
-        html = requests.get(url).text
+        req = requests.get(url)
+        html = req.text
 
         return ResearchPaper(html)
 
