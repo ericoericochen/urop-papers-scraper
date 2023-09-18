@@ -66,7 +66,9 @@ class LabsSheet:
             [
                 paper.title,
                 stringify_list(paper.authors),
-                paper.abstract,
+                paper.abstract
+                if len(paper.abstract) <= 50000
+                else paper.abstract[:50000],
                 paper.url,
                 stringify_list(paper.keywords),
                 paper.date_issued,

@@ -1,6 +1,7 @@
 import aiohttp
 import requests
 from bs4 import BeautifulSoup
+import time
 
 from user_agent import get_headers
 
@@ -16,9 +17,9 @@ class ResearchPaper:
         title = self.extract_properties(rows, "dc.title")
 
         if len(title) > 0:
-            self.title = title[0]
+            title = title[0]
         else:
-            self.title = ""
+            title = ""
 
         # get authors
         authors = self.extract_properties(rows, "dc.contributor.author")
@@ -44,9 +45,9 @@ class ResearchPaper:
         url = self.extract_properties(rows, "dc.identifier.uri")
 
         if len(url) > 0:
-            self.url = url[0]
+            url = url[0]
         else:
-            self.url = ""
+            url = ""
 
         # get files
         files_rows = soup.select(".file-list .file-wrapper.row")
@@ -96,8 +97,29 @@ class ResearchPaper:
 
     @staticmethod
     async def afrom_url(url: str):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=get_headers()) as res:
-                html = await res.text()
+        for attempts in range(3):
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url, headers=get_headers()) as res:
+                        if res.status == 200:
+                            try:
+                                html = await res.text()
+                                return ResearchPaper(html)
+                            except:
+                                return None
+                        else:
+                            print(res.status)
+                            print(f"UNABLE TO GET {url}")
+                            print(res.headers)
+                            print("RETRYING in the next 3 minutes")
+                            raise RuntimeError
+            except:
+                time.sleep((attempts + 1) * 60)
 
-                return ResearchPaper(html)
+        print(f"Failed to get {url}")
+
+        # record failed paper
+        with open("log.txt", "w") as file:
+            file.write(f"{url}\n")
+
+        return None

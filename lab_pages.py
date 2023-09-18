@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from user_agent import get_headers
 import urllib.parse
+from retrying import retry
 
 
 def add_query_param(url, param_name, param_value):
@@ -42,11 +43,14 @@ def add_query_param(url, param_name, param_value):
     return new_url
 
 
+WAIT = 10 * 60 * 1000
+
+
+@retry(wait_exponential_multiplier=60 * 1000, wait_exponential_max=WAIT)
 def get_num_lab_pages(url: str):
     lab_result = requests.get(url, headers=get_headers())
 
     if lab_result.status_code == 200:
-        # print(lab_result.request.headers)
         soup = BeautifulSoup(lab_result.text, "html.parser")
         pagination = soup.select(".pagination-info")[0].text
         tokens = pagination.split(" ")
@@ -56,6 +60,9 @@ def get_num_lab_pages(url: str):
     else:
         print(lab_result.status_code)
         print(f"UNABLE TO GET {url}")
+        print(lab_result.headers)
+        print("RETRYING in the next 3 minutes")
+        raise RuntimeError
 
 
 def get_lab_pages(url: str, pages: int):
