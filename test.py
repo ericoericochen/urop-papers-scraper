@@ -37,5 +37,5 @@ if __name__ == "__main__":
 
     print(res.status_code)
 
-    asyncio.run(main2())
+    # asyncio.run(main2())
     asyncio.run(main())

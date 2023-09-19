@@ -86,14 +86,26 @@ class ResearchPaper:
 
             return rows
         except:
-            print(soup.prettify())
+            # print(soup.prettify())
+
+            return []
 
     @staticmethod
     def from_url(url: str):
-        req = requests.get(url, headers=get_headers(), proxies=get_proxies())
-        html = req.text
+        try:
+            req = requests.get(url, headers=get_headers(), proxies=get_proxies())
 
-        return ResearchPaper(html)
+            if req.status_code != 200:
+                print(req.status_code)
+                raise RuntimeError
+
+            html = req.text
+
+            return ResearchPaper(html)
+        except:
+            print(f"Failed to get {url}")
+            with open("log.txt", "w") as file:
+                file.write(f"{url}\n")
 
     @staticmethod
     async def afrom_url(url: str):
