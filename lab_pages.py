@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from user_agent import get_headers
+from user_agent import get_headers, get_proxies
 import urllib.parse
 from retrying import retry
 
@@ -48,7 +48,7 @@ WAIT = 10 * 60 * 1000
 
 @retry(wait_exponential_multiplier=60 * 1000, wait_exponential_max=WAIT)
 def get_num_lab_pages(url: str):
-    lab_result = requests.get(url, headers=get_headers())
+    lab_result = requests.get(url, headers=get_headers(), proxies=get_proxies())
 
     if lab_result.status_code == 200:
         soup = BeautifulSoup(lab_result.text, "html.parser")
@@ -67,7 +67,7 @@ def get_num_lab_pages(url: str):
 
 @retry(wait_exponential_multiplier=60 * 1000, wait_exponential_max=WAIT)
 def get_paper_links(link: str):
-    response = requests.get(link)
+    response = requests.get(link, headers=get_headers(), proxies=get_proxies())
 
     if response.status_code == 200:
         html = response.text
@@ -92,17 +92,6 @@ def get_lab_pages(url: str, pages: int):
     for i in range(0, pages, 3):
         offset = i
         link = url + f"?offset={offset}"
-
-        # # add throttling to this
-        # response = requests.get(link)
-        # html = response.text
-        # soup = BeautifulSoup(html, "html.parser")
-        # papers_links = soup.select(".artifact-title a")
-
-        # links: list[str] = [
-        #     add_query_param("https://dspace.mit.edu" + a["href"], "show", "full")
-        #     for a in papers_links
-        # ]
 
         links = get_paper_links(link)
 

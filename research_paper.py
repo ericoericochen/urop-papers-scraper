@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 
-from user_agent import get_headers
+from user_agent import get_headers, get_proxies
 
 
 class ResearchPaper:
@@ -90,7 +90,7 @@ class ResearchPaper:
 
     @staticmethod
     def from_url(url: str):
-        req = requests.get(url)
+        req = requests.get(url, headers=get_headers(), proxies=get_proxies())
         html = req.text
 
         return ResearchPaper(html)
@@ -99,8 +99,8 @@ class ResearchPaper:
     async def afrom_url(url: str):
         for attempts in range(3):
             try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url, headers=get_headers()) as res:
+                async with aiohttp.ClientSession(headers=get_headers()) as session:
+                    async with session.get(url) as res:
                         if res.status == 200:
                             try:
                                 html = await res.text()

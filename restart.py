@@ -29,15 +29,19 @@ async def sync_scrape_labs(sheet_id: str, start: str):
     lab_index = lab_names.index(start)
     lab_names = lab_names[lab_index:]
 
+    print("<LOOPING>")
+
     for lab in lab_names:
         lab_url = labs[lab]
         pages = get_num_lab_pages(lab_url)
+        print(pages)
         for batch in tqdm(
             get_lab_pages(lab_url, pages), total=math.ceil(pages / 3), desc=lab
         ):
-            papers = await apapers_from_urls(batch)
+            # papers = await apapers_from_urls(batch)
+            papers = papers_from_urls(batch)
             labs_sheet.insert_research_papers(lab, papers)
-            time.sleep(3)
+            time.sleep(1)
 
         # throttle
         time.sleep(30)
@@ -49,6 +53,7 @@ if __name__ == "__main__":
     test_sheet_id = "1lcGJT0_swNAX9XzWQtK_BExrRjK_kuBnn2kuWALSgvY"
     sheet_id = "1_KX1U1ksj1Bzraf-oWbZh8nDHxQxYzZC1lSSuzgt1OA"
     start = "Computer Science and Artificial Intelligence Lab (CSAIL)"
+    # start = "CyberPolitics & Global Dynamics Lab"
 
     _id = test_sheet_id
     asyncio.run(sync_scrape_labs(_id, start))

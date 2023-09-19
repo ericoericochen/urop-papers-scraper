@@ -1,25 +1,41 @@
-from labs import get_labs
-from labs_sheet import LabsSheet
-from lab_pages import get_num_lab_pages
-from tqdm import tqdm
-import time
+import requests
+from user_agent import get_proxies, get_headers
+import asyncio
+import aiohttp
+import httpx
+
+
+async def main():
+    proxy = get_proxies()["http"]
+    print(proxy)
+    async with aiohttp.ClientSession(trust_env=True) as session:
+        async with session.get(
+            "https://dspace.mit.edu/handle/1721.1/3549/recent-submissions?offset=270",
+            headers=get_headers(),
+            proxy=proxy,
+            ssl=False,
+        ) as res:
+            print(res.status)
+
+
+async def main2():
+    proxy = get_proxies()["http"]
+    print(proxy)
+    with httpx.Client(proxies=proxy) as client:
+        async with client.get(
+            "https://dspace.mit.edu/handle/1721.1/3549/recent-submissions?offset=270",
+            headers=get_headers(),
+        ) as res:
+            print(res.status)
 
 
 if __name__ == "__main__":
-    sheet_id = "1lcGJT0_swNAX9XzWQtK_BExrRjK_kuBnn2kuWALSgvY"
-    creds_path = "credentials.json"
+    res = requests.get(
+        "https://dspace.mit.edu/handle/1721.1/3549/recent-submissions?offset=270",
+        proxies=get_proxies(),
+    )
 
-    labs_sheet = LabsSheet(sheet_id=sheet_id, credentials_path=creds_path)
-    labs = get_labs()
-    lab_names = labs.keys()
+    print(res.status_code)
 
-    pbar = tqdm(lab_names)
-    for lab_name in pbar:
-        lab_url = labs[lab_name]
-        num_papers = get_num_lab_pages(lab_url)
-
-        pbar.set_postfix(lab=lab_name)
-        labs_sheet.create_lab_worksheet(lab_name, papers=num_papers)
-        time.sleep(1)
-
-    labs_sheet.set_headers()
+    asyncio.run(main2())
+    asyncio.run(main())
